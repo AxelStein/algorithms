@@ -61,15 +61,15 @@ class BST:
     def find_node(self, val):
         return self._find_node(self.root, val)
 
-    def _find_node(self, root, val):
-        if root is None:
+    def _find_node(self, node, val):
+        if node is None:
             return None
-        if root.val == val:
-            return root
-        if val < root.val:
-            return self._find_node(root.left, val)
+        if node.val == val:
+            return node
+        if val < node.val:
+            return self._find_node(node.left, val)
         else:
-            return self._find_node(root.right, val)
+            return self._find_node(node.right, val)
 
     @staticmethod
     def _get_child(node):
@@ -80,19 +80,19 @@ class BST:
                 return node.right
         return None
 
-    def _find_min(self, root):
-        if root is None:
+    def _find_min(self, node):
+        if node is None:
             return None
-        if not root.left:
-            return root
+        if not node.left:
+            return node
         else:
-            return self._find_min(root.left)
+            return self._find_min(node.left)
 
-    def _print_tree(self, root):
-        if root:
-            print(root)
-            self._print_tree(root.left)
-            self._print_tree(root.right)
+    def _print_tree(self, node):
+        if node:
+            print(node)
+            self._print_tree(node.left)
+            self._print_tree(node.right)
 
     def __str__(self):
         self._print_tree(self.root)
