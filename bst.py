@@ -49,7 +49,7 @@ class BST:
                 node.val = tmp.val
                 node.right = self._delete(node.right, tmp.val)
             else:
-                return BST._get_child(node)
+                return self._get_child(node)
 
         if val < node.val:
             node.left = self._delete(node.left, val)
