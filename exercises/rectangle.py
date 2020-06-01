@@ -1,38 +1,25 @@
 # How do you check if two rectangles overlap with each other?
-import math
+class Point:
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
 
 
 class Rect:
-    def __init__(self, v, s):
-        self.vertex = v
-        self.size = s
+    def __init__(self, tl, br):
+        self.tl = tl
+        self.br = br
+
+    def overlaps(self, r):
+        if self.tl.y < r.br.y or self.br.y > r.tl.y or self.br.x < r.tl.x or self.tl.x > r.br.x:
+            return False
+        return True
 
 
-r1 = Rect([(0, 0), (3, 0), (0, 3), (3, 3)], 3)
-r2 = Rect([(2, 0), (4, 0), (2, 2), (4, 2)], 2)
-r3 = Rect([(4, 0), (4, 2), (6, 0), (6, 2)], 2)
+r1 = Rect(Point(0, 3), Point(3, 0))
+r2 = Rect(Point(2, 2), Point(4, 0))
+r3 = Rect(Point(5, 2), Point(7, 0))
 
-
-def vector_length(v1, v2):
-    # print(v1, v2)
-    dx = (v1[0] - v2[0]) ** 2
-    dy = (v1[1] - v2[1]) ** 2
-    return math.sqrt(dx + dy)
-
-
-def belongs(r1, r2):
-    r1.vertex.sort()
-    r2.vertex.sort()
-
-    for i in range(4):
-        l = vector_length(r1.vertex[i], r2.vertex[i])
-        # print(l)
-        if l < r1.size:
-            # r2 belongs to r1
-            return True
-    return False
-
-
-print(belongs(r1, r2))
-print(belongs(r1, r3))
-print(belongs(r2, r3))
+print(r1.overlaps(r2))
+print(r1.overlaps(r3))
+print(r2.overlaps(r3))
