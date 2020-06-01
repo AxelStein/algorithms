@@ -1,4 +1,4 @@
-import math
+import numpy as np
 
 
 class Point:
@@ -13,85 +13,35 @@ class Point:
         return str(self)
 
 
-class Rectangle:
-    def __init__(self, tl, br):
-        self.tl = tl
-        self.br = br
-
-    def __str__(self):
-        return "{}:{}".format(self.tl, self.br)
-
-    def __repr__(self):
-        return str(self)
-
-
-DIR_NONE = -1
-DIR_UP = 0
-DIR_RIGHT = 1
-DIR_DOWN = 2
-DIR_LEFT = 3
-dir_map = {DIR_UP: "up", DIR_RIGHT: "right", DIR_DOWN: "down", DIR_LEFT: "left"}
-
-
-def get_vector(p1, p2):
-    dx = p2.x - p1.x
-    dy = p2.y - p1.y
-
-    direction = -1
-    if dx > 0:
-        direction = DIR_RIGHT
-    elif dx < 0:
-        direction = DIR_LEFT
-    if dy > 0:
-        direction = DIR_UP
-    elif dy < 0:
-        direction = DIR_DOWN
-    return math.sqrt(dx ** 2 + dy ** 2), direction
-
-
-points = [Point(0, 0), Point(0, 1), Point(1, 1),
-          Point(2, 1), Point(2, 0), Point(0, 2), Point(1, 2)]
+points = [Point(0, 0), Point(0, 1), Point(1, 1), Point(1, 0),
+          Point(2, 1), Point(2, 0), Point(0, 2), Point(1, 2), Point(2, 2)]
 points.sort(key=lambda p: (p.x, p.y))
 
+X_MAX = 3
+Y_MAX = 3
 
-def get_rectangle(arr):
-    i = 0
-    j = 1
-    step = 1
-    dir_stack = [DIR_LEFT, DIR_DOWN, DIR_RIGHT, DIR_UP]
-    rect = []
+matrix = np.zeros(shape=(X_MAX, Y_MAX), dtype=bool)
+for p in points:
+    matrix[p.x][p.y] = True
+print(matrix)
 
-    while True:
-        vl, dr = get_vector(arr[i], arr[j])
-        # if vector is straight
-        if vl % 1 == 0:
-            # if direction is the same as we need
-            # append point to rectangle
-            if len(dir_stack) > 0 and dr == dir_stack[-1]:
-                rect.append(arr[i])
-                dir_stack.pop()
-                i = j
-        n = len(arr) - 1
-        if i == n or j == n:  # end of arr
-            step = -1
-        if j == 0:  # end of cycle
-            break
-        j += step
-    # we have found the rectangle
-    if len(dir_stack) == 0:
-        return rect
-    return None
-
-
-i = 0
 res = []
-rectangle_count = 0
-while i + 3 < len(points):
-    r = get_rectangle(points[i:])
-    if r:
-        res.append(r)
-        rectangle_count += 1
-    i += 1
 
-print(res)
-print(rectangle_count)
+
+def check(m, dx, dy):
+    for x1 in range(X_MAX - 1):
+        for y1 in range(Y_MAX - 1):
+            x2 = x1 + dx
+            y2 = y1 + dy
+
+            if x2 < X_MAX and y2 < Y_MAX:
+                if m[x1][y1] and m[x1][y2] and m[x2][y2] and m[x2][y1]:
+                    res.append("{},{} - {},{}".format(x1, y1, x2, y2))
+
+
+for i in range(1, max(X_MAX, Y_MAX)):
+    check(matrix, i, i)
+    check(matrix, i + 1, i)
+    check(matrix, i, i + 1)
+
+print(res, len(res))
