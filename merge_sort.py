@@ -1,44 +1,38 @@
-import numpy as np
+"""
+Worst-case performance	O(n log n)
+Best-case performance	O(n log n) typical, O(n) natural variant
+Average performance	O(n log n)
+Worst-case space complexity	О(n) total with O(n) auxiliary, O(1) auxiliary with linked lists[1]
+"""
 
 
-def swap(arr, i, j):
-    if arr[i] > arr[j]:
-        arr[i], arr[j] = arr[j], arr[i]
-
-
-def sort(arr, i, j):
-    print('sort', i, j, arr)
-    start = j
-    end = (j - i) + j
-    n = i
-    v = arr[i]
-    while n < end:
-        if v < arr[j]:
-            arr[n] = v
-            i += 1
-            v = arr[i]
-        else:
-            arr[n] = arr[j]
+def sort(left, right):
+    i = j = 0
+    length = len(left) + len(right)
+    out = []
+    for _ in range(length):
+        if i >= len(left) or j < len(right) and left[i] >= right[j]:
+            out.append(right[j])
             j += 1
-        n += 1
+        else:
+            out.append(left[i])
+            i += 1
+    return out
 
 
 def merge(arr, start, end):
     if end - start == 0:
-        return start
-    mid = int(start + (end - start) / 2)
-    l = merge(arr, start, mid)
-    h = merge(arr, mid + 1, end)
-    sort(arr, l, h)
-    return start
+        return [arr[start]]
+    mid = (start + end) // 2
+    left = merge(arr, start, mid)
+    right = merge(arr, mid + 1, end)
+    return sort(left, right)
 
 
-# 5613 2478
-a = np.array([6, 5, 3, 1, 8, 7, 2, 4])
-# s = np.zeros(len(a), dtype=int)
-# print(s)
+def merge_sort(arr):
+    return merge(arr, 0, len(arr) - 1)
 
-merge(a, 0, len(a) - 1)
+
+a = [6, 5, 3, 1, 8, 7, 2, 4]
 print(a)
-
-# print(s)
+print(merge_sort(a))
