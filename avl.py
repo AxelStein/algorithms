@@ -1,3 +1,12 @@
+"""
+Algorithm	Average	Worst case
+Space		O(n) O(n)
+Search		O(log n) O(log n)
+Insert		O(log n) O(log n)
+Delete		O(log n) O(log n)
+"""
+
+
 class Node:
     def __init__(self, val):
         self.val = val
@@ -32,12 +41,7 @@ class AVL:
             node.left = self._insert(node.left, val)
         else:
             node.right = self._insert(node.right, val)
-        bf = self._get_height(node.right) - self._get_height(node.left)
-        if bf < -1:
-            return self._rotate_right(node)
-        if bf > 1:
-            return self._rotate_left(node)
-        return node
+        return self._update_bf(node)
 
     def delete(self, val):
         self.root = self._delete(self.root, val)
@@ -61,12 +65,14 @@ class AVL:
         else:
             node.right = self._delete(node.right, val)
 
+        return self._update_bf(node)
+
+    def _update_bf(self, node):
         bf = self._get_height(node.right) - self._get_height(node.left)
         if bf < -1:
             return self._rotate_right(node)
         if bf > 1:
             return self._rotate_left(node)
-
         return node
 
     def find_node(self, val):
