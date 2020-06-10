@@ -1,5 +1,8 @@
-INTEGER, FLOAT, ADD, SUB, MUL, POW, DIV, NAME, ASSIGNMENT, EQUALS, IF, ELSE, ELIF, FOR, WHILE, COLON, RETURN, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, TRUE, FALSE, NIL, NOT, QUOTE, EOF = \
-    'INTEGER', 'FLOAT', 'ADD', 'SUB', 'MUL', 'POW', 'DIV', 'NAME', 'ASSIGNMENT', 'EQUALS', 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'COLON', 'RETURN', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'TRUE', 'FALSE', 'NIL', 'NOT', 'QUOTE', 'EOF'
+INTEGER, FLOAT, NAME, TRUE, FALSE, NIL, NOT = 'INTEGER', 'FLOAT', 'NAME', 'TRUE', 'FALSE', 'NIL', 'NOT'
+ADD, SUB, MUL, POW, DIV = 'ADD', 'SUB', 'MUL', 'POW', 'DIV'
+ASSIGNMENT, EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
+IF, ELSE, ELIF, FOR, WHILE, RETURN = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN'
+EOF = 'EOF'
 
 
 class Token:
@@ -16,16 +19,11 @@ class Token:
 
 class Lexer:
     def __init__(self, txt):
-        # self.txt = txt.strip().replace(' ', '')
         self.txt = txt.strip()
         self.pos = 0
 
     def pop_next_char(self):
         self.pos += 1
-        if self.pos < len(self.txt):
-            return self.txt[self.pos]
-
-    def peek_next_char(self):
         if self.pos < len(self.txt):
             return self.txt[self.pos]
 
@@ -97,7 +95,7 @@ class Lexer:
         elif ch == '-':
             return Token(SUB)
         elif ch == '*':
-            if self.peek_next_char() == '*':
+            if self.peek_char() == '*':
                 self.pos += 1
                 return Token(POW)
             return Token(MUL)
@@ -122,7 +120,7 @@ class Lexer:
         elif ch == '\'':
             return Token(QUOTE)
         elif ch == '=':
-            if self.peek_next_char() == '=':
+            if self.peek_char() == '=':
                 self.pos += 1
                 return Token(EQUALS)
             return Token(ASSIGNMENT)
@@ -154,7 +152,7 @@ class Stack:
         return str(self.items)
 
 
-lex = Lexer('a = ba12 == bbc -123 + -47.5 - 13 * -3 / 2 ** 13.0 if a == 5: return true else return nil arr[5][7]')
+lex = Lexer(input())
 token = lex.next_token()
 while token.type != EOF:
     print(token)
