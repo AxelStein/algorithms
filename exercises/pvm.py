@@ -1,8 +1,38 @@
 INTEGER, FLOAT, NAME, TRUE, FALSE, NIL, NOT = 'INTEGER', 'FLOAT', 'NAME', 'TRUE', 'FALSE', 'NIL', 'NOT'
 ADD, SUB, MUL, POW, DIV = 'ADD', 'SUB', 'MUL', 'POW', 'DIV'
 ASSIGNMENT, EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
-IF, ELSE, ELIF, FOR, WHILE, RETURN = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN'
+IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS'
 EOF = 'EOF'
+
+
+class Node:
+    def __init__(self, t, v=None):
+        self.type = t
+        self.val = v
+        self.left = None
+        self.right = None
+
+    def __str__(self):
+        return 'Node type={}, value={}, left={}, right={}'.format(self.type, self.val, self.left, self.right)
+
+
+class Parser:
+    def __init__(self, lexer):
+        self.lexer = lexer
+        self.root = None
+
+    def next_token(self):
+        return self.lexer.next_token()
+
+    def parse(self):
+        token = self.next_token()
+        if token.type == NAME:
+            nt = self.next_token()
+            if nt.type == ASSIGNMENT:
+                node = Node(ASSIGNMENT)
+                node.left = token
+                node.right = self.next_token()
+                return node
 
 
 class Token:
@@ -74,6 +104,12 @@ class Lexer:
             return Token(FALSE)
         elif s == 'nil':
             return Token(NIL)
+        elif s == 'and':
+            return Token(AND)
+        elif s == 'or':
+            return Token(OR)
+        elif s == 'is':
+            return Token(IS)
         return Token(NAME, ''.join(buf))
 
     def next_token(self):
@@ -152,11 +188,15 @@ class Stack:
         return str(self.items)
 
 
+parser = Parser(Lexer(input()))
+print(parser.parse())
+"""
 lex = Lexer(input())
 token = lex.next_token()
 while token.type != EOF:
     print(token)
     token = lex.next_token()
+"""
 
 """
 ADD = 0
