@@ -1,6 +1,5 @@
-INTEGER, FLOAT, ADD, SUB, MUL, \
-POW, DIV, NAME, ASSIGNMENT, EQUALS, EOF = 'INTEGER', 'FLOAT', 'ADD', 'SUB', 'MUL', 'POW', 'DIV', \
-                                          'NAME', 'ASSIGNMENT', 'EQUALS', 'EOF'
+INTEGER, FLOAT, ADD, SUB, MUL, POW, DIV, NAME, ASSIGNMENT, EQUALS, IF, ELSE, ELIF, FOR, WHILE, COLON, RETURN, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, TRUE, FALSE, NIL, NOT, QUOTE, EOF = \
+    'INTEGER', 'FLOAT', 'ADD', 'SUB', 'MUL', 'POW', 'DIV', 'NAME', 'ASSIGNMENT', 'EQUALS', 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'COLON', 'RETURN', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'TRUE', 'FALSE', 'NIL', 'NOT', 'QUOTE', 'EOF'
 
 
 class Token:
@@ -17,7 +16,8 @@ class Token:
 
 class Lexer:
     def __init__(self, txt):
-        self.txt = txt.strip().replace(' ', '')
+        # self.txt = txt.strip().replace(' ', '')
+        self.txt = txt.strip()
         self.pos = 0
 
     def pop_next_char(self):
@@ -57,6 +57,25 @@ class Lexer:
             ch = self.pop_next_char()
             if not ch:
                 break
+        s = ''.join(buf)
+        if s == 'for':
+            return Token(FOR)
+        elif s == 'while':
+            return Token(WHILE)
+        elif s == 'if':
+            return Token(IF)
+        elif s == 'else':
+            return Token(ELSE)
+        elif s == 'elif':
+            return Token(ELIF)
+        elif s == 'return':
+            return Token(RETURN)
+        elif s == 'true':
+            return Token(TRUE)
+        elif s == 'false':
+            return Token(FALSE)
+        elif s == 'nil':
+            return Token(NIL)
         return Token(NAME, ''.join(buf))
 
     def next_token(self):
@@ -64,6 +83,9 @@ class Lexer:
             return Token(EOF)
 
         ch = self.peek_char()
+        while ch == ' ':
+            ch = self.pop_next_char()
+
         if ch.isdigit():
             return self.get_digit(ch)
         elif ch.isalpha():
@@ -81,6 +103,24 @@ class Lexer:
             return Token(MUL)
         elif ch == '/':
             return Token(DIV)
+        elif ch == ':':
+            return Token(COLON)
+        elif ch == '(':
+            return Token(LEFT_PARENTHESIS)
+        elif ch == ')':
+            return Token(RIGHT_PARENTHESIS)
+        elif ch == '[':
+            return Token(LEFT_BRACKET)
+        elif ch == ']':
+            return Token(RIGHT_BRACKET)
+        elif ch == ',':
+            return Token(COMA)
+        elif ch == '.':
+            return Token(DOT)
+        elif ch == '"':
+            return Token(QUOTE)
+        elif ch == '\'':
+            return Token(QUOTE)
         elif ch == '=':
             if self.peek_next_char() == '=':
                 self.pos += 1
@@ -114,12 +154,11 @@ class Stack:
         return str(self.items)
 
 
-lex = Lexer('a = b1 == bbc -123 + -47.5 - 13 * -3 / 2 ** 13.0')
+lex = Lexer('a = ba12 == bbc -123 + -47.5 - 13 * -3 / 2 ** 13.0 if a == 5: return true else return nil arr[5][7]')
 token = lex.next_token()
 while token.type != EOF:
     print(token)
     token = lex.next_token()
-
 
 """
 ADD = 0
