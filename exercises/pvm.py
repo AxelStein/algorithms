@@ -1,5 +1,6 @@
 INTEGER, FLOAT, ADD, SUB, MUL, \
-POW, DIV, NAME, EOF = 'INTEGER', 'FLOAT', 'ADD', 'SUB', 'MUL', 'POW', 'DIV', 'NAME', 'EOF'
+POW, DIV, NAME, ASSIGNMENT, EQUALS, EOF = 'INTEGER', 'FLOAT', 'ADD', 'SUB', 'MUL', 'POW', 'DIV', \
+                                          'NAME', 'ASSIGNMENT', 'EQUALS', 'EOF'
 
 
 class Token:
@@ -49,6 +50,15 @@ class Lexer:
             return Token(FLOAT, float(s))
         return Token(INTEGER, int(s))
 
+    def get_name(self, ch):
+        buf = []
+        while ch.isalpha() or ch.isdigit():
+            buf.append(ch)
+            ch = self.pop_next_char()
+            if not ch:
+                break
+        return Token(NAME, ''.join(buf))
+
     def next_token(self):
         if self.pos >= len(self.txt):
             return Token(EOF)
@@ -56,7 +66,7 @@ class Lexer:
         ch = self.peek_char()
         if ch.isdigit():
             return self.get_digit(ch)
-        if ch.isalpha():
+        elif ch.isalpha():
             return self.get_name(ch)
 
         self.pos += 1
@@ -71,6 +81,11 @@ class Lexer:
             return Token(MUL)
         elif ch == '/':
             return Token(DIV)
+        elif ch == '=':
+            if self.peek_next_char() == '=':
+                self.pos += 1
+                return Token(EQUALS)
+            return Token(ASSIGNMENT)
 
 
 class Stack:
@@ -99,7 +114,7 @@ class Stack:
         return str(self.items)
 
 
-lex = Lexer('-123 + -47.5 - 13 * -3 / 2 ** 13.0')
+lex = Lexer('a = b1 == bbc -123 + -47.5 - 13 * -3 / 2 ** 13.0')
 token = lex.next_token()
 while token.type != EOF:
     print(token)
