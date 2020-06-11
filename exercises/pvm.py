@@ -121,7 +121,7 @@ class Parser:
 
     def parse_primary(self):
         t = self.token
-        if t.type == INTEGER:
+        if t.type == INTEGER or t.type == FLOAT:
             return self.parse_num()
         elif t.type == NAME:
             return self.parse_name()
