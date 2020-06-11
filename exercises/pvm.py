@@ -37,6 +37,17 @@ class Num(AST):
         return str(self)
 
 
+class String(AST):
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return '[String val={}]'.format(self.val)
+
+    def __repr__(self):
+        return str(self)
+
+
 class Var(AST):
     def __init__(self, name):
         self.name = name
@@ -119,10 +130,18 @@ class Parser:
         self.next_token()
         return r
 
+    def parse_string(self):
+        self.next_token()
+        r = self.parse_expr()
+        self.next_token()
+        return String(r)
+
     def parse_primary(self):
         t = self.token
         if t.type == INTEGER or t.type == FLOAT:
             return self.parse_num()
+        elif t.type == QUOTE:
+            return self.parse_string()
         elif t.type == NAME:
             return self.parse_name()
         elif t.type == LEFT_PARENTHESIS:
