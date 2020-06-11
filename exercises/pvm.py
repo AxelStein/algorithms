@@ -1,7 +1,10 @@
 INTEGER, FLOAT, NAME, TRUE, FALSE, NIL, NOT = 'INTEGER', 'FLOAT', 'NAME', 'TRUE', 'FALSE', 'NIL', 'NOT'
 ADD, SUB, MUL, POW, DIV = 'ADD', 'SUB', 'MUL', 'POW', 'DIV'
-ASSIGNMENT, EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
-IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS'
+ASSIGNMENT, EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, \
+LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
+                                                'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
+                                                'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
+IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'FUNC'
 EOF = 'EOF'
 
 
@@ -110,6 +113,8 @@ class Lexer:
             return Token(OR)
         elif s == 'is':
             return Token(IS)
+        elif s == 'func':
+            return Token(FUNC)
         return Token(NAME, ''.join(buf))
 
     def next_token(self):
@@ -155,6 +160,16 @@ class Lexer:
             return Token(QUOTE)
         elif ch == '\'':
             return Token(QUOTE)
+        elif ch == '<':
+            if self.peek_char() == '=':
+                self.pos += 1
+                return Token(LESS_OR_EQUALS)
+            return Token(LESS)
+        elif ch == '>':
+            if self.peek_char() == '=':
+                self.pos += 1
+                return Token(GREATER_OR_EQUALS)
+            return Token(GREATER)
         elif ch == '=':
             if self.peek_char() == '=':
                 self.pos += 1
@@ -188,6 +203,7 @@ class Stack:
         return str(self.items)
 
 
+"""
 parser = Parser(Lexer(input()))
 print(parser.parse())
 """
@@ -196,7 +212,6 @@ token = lex.next_token()
 while token.type != EOF:
     print(token)
     token = lex.next_token()
-"""
 
 """
 ADD = 0
