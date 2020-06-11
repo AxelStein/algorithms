@@ -4,38 +4,98 @@ ASSIGNMENT, EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS, COLON, LEF
 LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
                                                 'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
                                                 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
-IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'FUNC'
+IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC'
 EOF = 'EOF'
 
 
-class Node:
-    def __init__(self, t, v=None):
-        self.type = t
-        self.val = v
-        self.left = None
-        self.right = None
+class AST(object):
+    pass
+
+
+class BinOp(AST):
+    def __init__(self, op, left, right):
+        self.token = self.op = op
+        self.left = left
+        self.right = right
 
     def __str__(self):
-        return 'Node type={}, value={}, left={}, right={}'.format(self.type, self.val, self.left, self.right)
+        return '[BinOp token={}, left={}, right={}]'.format(self.token, self.left, self.right)
+
+
+class Num(AST):
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return '[Num val={}]'.format(self.val)
+
+
+class Var(AST):
+    def __init__(self, name):
+        self.name = name
+
+    def __str__(self):
+        return '[Var name={}]'.format(self.name)
 
 
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
-        self.root = None
+        self.token = lexer.next_token()
 
     def next_token(self):
-        return self.lexer.next_token()
+        self.token = self.lexer.next_token()
+        return self.token
+
+    def parse_num(self):
+        t = self.token
+        if t.type == INTEGER:
+            self.next_token()
+            return Num(t.val)
+
+    def parse_name(self):
+        t = self.token
+        if t.type == NAME:
+            # n = self.next_token()
+            self.next_token()
+            return Var(t.val)
+
+    def parse_paren(self):
+        t = self.token
+        if t.type == LEFT_PARENTHESIS:
+            self.next_token()
+            r = self.parse_expr()
+            self.next_token()
+            """
+            if self.next_token() != RIGHT_PARENTHESIS:
+                raise Exception()
+            """
+            return r
+
+    def parse_primary(self):
+        t = self.token
+        if t.type == INTEGER:
+            return self.parse_num()
+        elif t.type == NAME:
+            return self.parse_name()
+        elif t.type == LEFT_PARENTHESIS:
+            return self.parse_paren()
+
+    def parse_bin_op(self, left):
+        t = self.token
+        if t.type in (ADD, SUB, MUL, DIV, POW, EQUALS, LESS, LESS_OR_EQUALS, GREATER, GREATER_OR_EQUALS, AND, OR, IS, IN):
+            self.next_token()
+            return BinOp(t, left, self.parse_expr())
+
+    def parse_expr(self):
+        l = self.parse_primary()
+        n = self.parse_bin_op(l)
+        if n:
+            return n
+        return l
 
     def parse(self):
-        token = self.next_token()
-        if token.type == NAME:
-            nt = self.next_token()
-            if nt.type == ASSIGNMENT:
-                node = Node(ASSIGNMENT)
-                node.left = token
-                node.right = self.next_token()
-                return node
+        return self.parse_expr()
 
 
 class Token:
@@ -44,9 +104,10 @@ class Token:
         self.val = v
 
     def __str__(self):
-        s = 'Token type={}'.format(self.type)
+        s = '[Token type={}'.format(self.type)
         if self.val:
             s += ', val={}'.format(self.val)
+        s += ']'
         return s
 
 
@@ -113,6 +174,8 @@ class Lexer:
             return Token(OR)
         elif s == 'is':
             return Token(IS)
+        elif s == 'in':
+            return Token(IN)
         elif s == 'func':
             return Token(FUNC)
         return Token(NAME, ''.join(buf))
@@ -203,7 +266,6 @@ class Stack:
         return str(self.items)
 
 
-"""
 parser = Parser(Lexer(input()))
 print(parser.parse())
 """
@@ -213,7 +275,7 @@ while token.type != EOF:
     print(token)
     token = lex.next_token()
 
-"""
+
 ADD = 0
 SUB = 1
 MUL = 2
