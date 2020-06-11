@@ -1,7 +1,8 @@
 INTEGER, FLOAT, NAME, TRUE, FALSE, NIL, NOT = 'INTEGER', 'FLOAT', 'NAME', 'TRUE', 'FALSE', 'NIL', 'NOT'
-ADD, SUB, MUL, POW, DIV = 'ADD', 'SUB', 'MUL', 'POW', 'DIV'
+ADD, ADD_ASN, SUB, SUB_ASN, MUL, MUL_ASN, EXP, DIV, DIV_ASN, MOD, MOD_ASN = 'ADD', 'ADD_ASN', 'SUB', 'SUB_ASN', 'MUL', \
+                                                                            'MUL_ASN', 'EXP', 'DIV', 'DIV_ASN', 'MOD', 'MOD_ASN'
 ASSIGNMENT, EQUALS, NOT_EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, \
-LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'NOT_EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
+LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE,  = 'ASSIGNMENT', 'EQUALS', 'NOT_EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
                                                 'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
                                                 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
 IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC'
@@ -63,6 +64,30 @@ class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         self.token = lexer.next_token()
+        self.bin_op_pr = {
+            ASSIGNMENT: 1,
+            ADD_ASN: 1,
+            SUB_ASN: 1,
+            DIV_ASN: 1,
+            MOD_ASN: 1,
+            OR: 2,
+            AND: 3,
+            EQUALS: 4,
+            NOT_EQUALS: 4,
+            LESS: 5,
+            LESS_OR_EQUALS: 5,
+            GREATER: 5,
+            GREATER_OR_EQUALS: 5,
+            ADD: 6,
+            SUB: 6,
+            MUL: 7,
+            DIV: 7,
+            MOD: 7,
+            EXP: 8
+        }
+
+    def get_precedence(self, token):
+        return self.bin_op_pr[token.type]
 
     def next_token(self):
         self.token = self.lexer.next_token()
@@ -102,7 +127,7 @@ class Parser:
 
     def parse_bin_op(self, left):
         t = self.token
-        if t.type in (ADD, SUB, MUL, DIV, POW, EQUALS, NOT_EQUALS, LESS, LESS_OR_EQUALS, GREATER, GREATER_OR_EQUALS, AND, OR, ASSIGNMENT):
+        if t.type in (ADD, ADD_ASN, SUB, SUB_ASN, MUL, MUL_ASN, DIV, DIV_ASN, EXP, EQUALS, NOT_EQUALS, LESS, LESS_OR_EQUALS, GREATER, GREATER_OR_EQUALS, AND, OR, ASSIGNMENT, MOD, MOD_ASN):
             self.next_token()
             return BinOp(t, left, self.parse_expr())
 
@@ -224,15 +249,28 @@ class Lexer:
 
         self.pos += 1
         if ch == '+':
+            if self.peek_char() == '=':
+                self.pos += 1
+                return Token(ADD_ASN)
             return Token(ADD)
         elif ch == '-':
+            if self.peek_char() == '=':
+                self.pos += 1
+                return Token(SUB_ASN)
             return Token(SUB)
         elif ch == '*':
-            if self.peek_char() == '*':
+            c = self.peek_char()
+            if c == '*':
                 self.pos += 1
-                return Token(POW)
+                return Token(EXP)
+            elif c == '=':
+                self.pos += 1
+                return Token(MUL_ASN)
             return Token(MUL)
         elif ch == '/':
+            if self.peek_char() == '=':
+                self.pos += 1
+                return Token(DIV_ASN)
             return Token(DIV)
         elif ch == ':':
             return Token(COLON)
@@ -271,6 +309,11 @@ class Lexer:
             if self.peek_char() == '=':
                 self.pos += 1
                 return Token(NOT_EQUALS)
+        elif ch == '%':
+            if self.peek_char() == '=':
+                self.pos += 1
+                return Token(MOD_ASN)
+            return Token(MOD)
 
 
 class Stack:
