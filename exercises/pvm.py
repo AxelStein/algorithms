@@ -86,8 +86,11 @@ class Parser:
             EXP: 8
         }
 
-    def get_precedence(self, token):
-        return self.bin_op_pr[token.type]
+    def get_precedence(self):
+        t = self.token
+        if t.type in self.bin_op_pr.keys():
+            return self.bin_op_pr[t.type]
+        return 0
 
     def next_token(self):
         self.token = self.lexer.next_token()
@@ -127,9 +130,16 @@ class Parser:
 
     def parse_bin_op(self, left):
         t = self.token
+        c_pr = self.get_precedence()  # current precedence
         if t.type in (ADD, ADD_ASN, SUB, SUB_ASN, MUL, MUL_ASN, DIV, DIV_ASN, EXP, EQUALS, NOT_EQUALS, LESS, LESS_OR_EQUALS, GREATER, GREATER_OR_EQUALS, AND, OR, ASSIGNMENT, MOD, MOD_ASN):
             self.next_token()
-            return BinOp(t, left, self.parse_expr())
+            right = self.parse_expr()
+            if type(right) is BinOp:
+                r_pr = self.bin_op_pr[right.token.type]
+                if c_pr > r_pr:
+                    right.left = BinOp(t, left, right.left)
+                    return right
+            return BinOp(t, left, right)
 
     def parse_expr(self):
         left = self.parse_primary()
