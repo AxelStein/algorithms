@@ -1,7 +1,7 @@
 INTEGER, FLOAT, NAME, TRUE, FALSE, NIL, NOT = 'INTEGER', 'FLOAT', 'NAME', 'TRUE', 'FALSE', 'NIL', 'NOT'
 ADD, SUB, MUL, POW, DIV = 'ADD', 'SUB', 'MUL', 'POW', 'DIV'
-ASSIGNMENT, EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, \
-LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
+ASSIGNMENT, EQUALS, NOT_EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, \
+LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE = 'ASSIGNMENT', 'EQUALS', 'NOT_EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
                                                 'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
                                                 'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
 IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC'
@@ -21,6 +21,9 @@ class BinOp(AST):
     def __str__(self):
         return '[BinOp token={}, left={}, right={}]'.format(self.token, self.left, self.right)
 
+    def __repr__(self):
+        return str(self)
+
 
 class Num(AST):
     def __init__(self, val):
@@ -29,6 +32,9 @@ class Num(AST):
     def __str__(self):
         return '[Num val={}]'.format(self.val)
 
+    def __repr__(self):
+        return str(self)
+
 
 class Var(AST):
     def __init__(self, name):
@@ -36,6 +42,21 @@ class Var(AST):
 
     def __str__(self):
         return '[Var name={}]'.format(self.name)
+
+    def __repr__(self):
+        return str(self)
+
+
+class Call(AST):
+    def __init__(self, name, params):
+        self.name = name
+        self.params = params
+
+    def __str__(self):
+        return '[Call name={}, params={}]'.format(self.name, self.params)
+
+    def __repr__(self):
+        return str(self)
 
 
 class Parser:
@@ -49,28 +70,26 @@ class Parser:
 
     def parse_num(self):
         t = self.token
-        if t.type == INTEGER:
-            self.next_token()
-            return Num(t.val)
+        self.next_token()
+        return Num(t.val)
 
     def parse_name(self):
         t = self.token
-        if t.type == NAME:
-            # n = self.next_token()
+        n = self.next_token()
+        if n.type == LEFT_PARENTHESIS:
             self.next_token()
-            return Var(t.val)
+            params = []
+            self.parse_arg_expr(params)
+            if self.token.type == RIGHT_PARENTHESIS:
+                self.next_token()
+                return Call(t.val, params)
+        return Var(t.val)
 
     def parse_paren(self):
-        t = self.token
-        if t.type == LEFT_PARENTHESIS:
-            self.next_token()
-            r = self.parse_expr()
-            self.next_token()
-            """
-            if self.next_token() != RIGHT_PARENTHESIS:
-                raise Exception()
-            """
-            return r
+        self.next_token()
+        r = self.parse_expr()
+        self.next_token()
+        return r
 
     def parse_primary(self):
         t = self.token
@@ -83,16 +102,26 @@ class Parser:
 
     def parse_bin_op(self, left):
         t = self.token
-        if t.type in (ADD, SUB, MUL, DIV, POW, EQUALS, LESS, LESS_OR_EQUALS, GREATER, GREATER_OR_EQUALS, AND, OR, IS, IN):
+        if t.type in (ADD, SUB, MUL, DIV, POW, EQUALS, NOT_EQUALS, LESS, LESS_OR_EQUALS, GREATER, GREATER_OR_EQUALS, AND, OR, ASSIGNMENT):
             self.next_token()
             return BinOp(t, left, self.parse_expr())
 
     def parse_expr(self):
-        l = self.parse_primary()
-        n = self.parse_bin_op(l)
+        left = self.parse_primary()
+        n = self.parse_bin_op(left)
         if n:
             return n
-        return l
+        return left
+
+    def parse_arg_expr(self, params):
+        n = self.parse_expr()
+        if n:
+            params.append(n)
+
+        t = self.token
+        if t.type == COMA:
+            self.next_token()
+            self.parse_arg_expr(params)
 
     def parse(self):
         return self.parse_expr()
@@ -238,6 +267,10 @@ class Lexer:
                 self.pos += 1
                 return Token(EQUALS)
             return Token(ASSIGNMENT)
+        elif ch == '!':
+            if self.peek_char() == '=':
+                self.pos += 1
+                return Token(NOT_EQUALS)
 
 
 class Stack:
