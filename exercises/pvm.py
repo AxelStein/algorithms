@@ -27,11 +27,12 @@ class BinOp(AST):
 
 
 class Num(AST):
-    def __init__(self, val):
+    def __init__(self, t, val):
+        self.type = t
         self.val = val
 
     def __str__(self):
-        return '[Num val={}]'.format(self.val)
+        return '[Num type={}, val={}]'.format(self.type, self.val)
 
     def __repr__(self):
         return str(self)
@@ -126,7 +127,7 @@ class Parser:
     def parse_num(self):
         t = self.token
         self.next_token()
-        return Num(t.val)
+        return Num(t.type, t.val)
 
     def parse_name(self):
         t = self.token
