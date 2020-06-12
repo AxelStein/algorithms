@@ -2,9 +2,9 @@ INTEGER, FLOAT, NAME, TRUE, FALSE, NIL, NOT = 'INTEGER', 'FLOAT', 'NAME', 'TRUE'
 ADD, ADD_ASN, SUB, SUB_ASN, MUL, MUL_ASN, EXP, DIV, DIV_ASN, MOD, MOD_ASN = 'ADD', 'ADD_ASN', 'SUB', 'SUB_ASN', 'MUL', \
                                                                             'MUL_ASN', 'EXP', 'DIV', 'DIV_ASN', 'MOD', 'MOD_ASN'
 ASSIGNMENT, EQUALS, NOT_EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS, COLON, LEFT_PARENTHESIS, RIGHT_PARENTHESIS, \
-LEFT_BRACKET, RIGHT_BRACKET, COMA, DOT, QUOTE,  = 'ASSIGNMENT', 'EQUALS', 'NOT_EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
+LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, COMA, DOT, QUOTE,  = 'ASSIGNMENT', 'EQUALS', 'NOT_EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
                                                 'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
-                                                'LEFT_BRACKET', 'RIGHT_BRACKET', 'COMA', 'DOT', 'QUOTE'
+                                                'LEFT_BRACKET', 'RIGHT_BRACKET', 'LEFT_BRACE', 'RIGHT_BRACE', 'COMA', 'DOT', 'QUOTE'
 IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC'
 EOF = 'EOF'
 
@@ -46,6 +46,16 @@ class String(AST):
 
     def __repr__(self):
         return str(self)
+
+
+class IfBranch(AST):
+    def __init__(self, condition=None, is_true=None, is_false=None):
+        self.condition = condition
+        self.is_true = is_true
+        self.is_false = is_false
+
+    def __str__(self):
+        return '[IfBranch cond={}, is_true={}, is_false={}]'.format(self.condition, self.is_true, self.is_false)
 
 
 class Var(AST):
@@ -146,6 +156,8 @@ class Parser:
             return self.parse_name()
         elif t.type == LEFT_PARENTHESIS:
             return self.parse_paren()
+        elif t.type == IF:
+            return self.parse_if()
 
     def parse_bin_op(self, left):
         t = self.token
@@ -176,6 +188,39 @@ class Parser:
         if t.type == COMA:
             self.next_token()
             self.parse_arg_expr(params)
+
+    def check_token(self, t):
+        return self.token.type == t
+
+    def require_token(self, t):
+        r = self.check_token(t)
+        if not r:
+            raise ValueError()
+        return r
+
+    def parse_if(self):
+        self.next_token()
+        self.require_token(LEFT_PARENTHESIS)
+
+        self.next_token()
+
+        if_branch = IfBranch()
+        if_branch.condition = self.parse_expr()
+
+        if self.require_token(RIGHT_PARENTHESIS):
+            self.next_token()
+            if self.require_token(LEFT_BRACE):
+                self.next_token()
+                if_branch.is_true = self.parse_expr()
+            if self.require_token(RIGHT_BRACE):
+                self.next_token()
+                if self.check_token(ELSE):
+                    self.next_token()
+                    if self.require_token(LEFT_BRACE):
+                        self.next_token()
+                        if_branch.is_false = self.parse_expr()
+                        self.require_token(RIGHT_BRACE)
+        return if_branch
 
     def parse(self):
         return self.parse_expr()
@@ -311,6 +356,10 @@ class Lexer:
             return Token(LEFT_BRACKET)
         elif ch == ']':
             return Token(RIGHT_BRACKET)
+        elif ch == '{':
+            return Token(LEFT_BRACE)
+        elif ch == '}':
+            return Token(RIGHT_BRACE)
         elif ch == ',':
             return Token(COMA)
         elif ch == '.':
@@ -373,7 +422,9 @@ class Stack:
 
 parser = Parser(Lexer(input()))
 print(parser.parse())
+
 """
+
 lex = Lexer(input())
 token = lex.next_token()
 while token.type != EOF:
