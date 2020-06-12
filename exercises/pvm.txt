@@ -7,7 +7,9 @@ if (a < 5) and min(a, b) {
 } else {
     max(4,5)
     c = 7*3/2
+    return a*2+3
 }
 
 a = 4
 call(a, b-1)
+return a

@@ -82,6 +82,17 @@ class Call(AST):
         return str(self)
 
 
+class Return(AST):
+    def __init__(self, expr):
+        self.expr = expr
+
+    def __str__(self):
+        return '[Return expr={}]'.format(self.expr)
+
+    def __repr__(self):
+        return str(self)
+
+
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
@@ -164,6 +175,8 @@ class Parser:
             return self.parse_paren()
         elif t.type == IF:
             return self.parse_if()
+        elif t.type == RETURN:
+            return self.parse_return()
 
     def parse_bin_op(self, left):
         t = self.token
@@ -214,6 +227,10 @@ class Parser:
             expr_list.append(expr)
             expr = self.parse_expr()
         return expr_list
+
+    def parse_return(self):
+        self.next_token()
+        return Return(self.parse_expr())
 
     def parse_if(self):
         self.next_token()
