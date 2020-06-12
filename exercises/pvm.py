@@ -86,7 +86,6 @@ class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         self.token = lexer.next_token()
-        self.expr_list = []
         self.bin_op_pr = {
             ASSIGNMENT: 1,
             ADD_ASN: 1,
@@ -208,11 +207,13 @@ class Parser:
             raise ValueError()
         return r
 
-    def parse_expr_list(self, to):
-        e = self.parse_expr()
-        while e:
-            to.append(e)
-            e = self.parse_expr()
+    def parse_expr_list(self):
+        expr_list = []
+        expr = self.parse_expr()
+        while expr:
+            expr_list.append(expr)
+            expr = self.parse_expr()
+        return expr_list
 
     def parse_if(self):
         self.next_token()
@@ -222,21 +223,20 @@ class Parser:
 
         if self.require_token(LEFT_BRACE):
             self.next_token()
-            self.parse_expr_list(if_branch.is_true)
+            if_branch.is_true = self.parse_expr_list()
         if self.require_token(RIGHT_BRACE):
             self.next_token()
             if self.check_token(ELSE):
                 self.next_token()
                 if self.require_token(LEFT_BRACE):
                     self.next_token()
-                    self.parse_expr_list(if_branch.is_false)
+                    if_branch.is_false = self.parse_expr_list()
                     self.require_token(RIGHT_BRACE)
         self.next_token()
         return if_branch
 
     def parse(self):
-        self.parse_expr_list(self.expr_list)
-        return self.expr_list
+        return self.parse_expr_list()
 
 
 class Token:
