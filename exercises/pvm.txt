@@ -13,3 +13,10 @@ if (a < 5) and min(a, b) {
 a = 4
 call(a, b-1)
 return a
+
+while i < 5 and i >= 0 {
+    i += 1
+    print(i)
+}
+
+return i

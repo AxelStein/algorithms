@@ -93,6 +93,18 @@ class Return(AST):
         return str(self)
 
 
+class WhileLoop(AST):
+    def __init__(self, condition=None):
+        self.condition = condition
+        self.body = []
+
+    def __str__(self):
+        return '[WhileLoop condition={}, body={}]'.format(self.condition, self.body)
+
+    def __repr__(self):
+        return str(self)
+
+
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
@@ -177,6 +189,8 @@ class Parser:
             return self.parse_if()
         elif t.type == RETURN:
             return self.parse_return()
+        elif t.type == WHILE:
+            return self.parse_while()
 
     def parse_bin_op(self, left):
         t = self.token
@@ -231,6 +245,17 @@ class Parser:
     def parse_return(self):
         self.next_token()
         return Return(self.parse_expr())
+
+    def parse_while(self):
+        self.next_token()
+
+        while_loop = WhileLoop(self.parse_expr())
+        if self.require_token(LEFT_BRACE):
+            self.next_token()
+            while_loop.body = self.parse_expr_list()
+            self.require_token(RIGHT_BRACE)
+        self.next_token()
+        return while_loop
 
     def parse_if(self):
         self.next_token()
