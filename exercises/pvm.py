@@ -6,7 +6,7 @@ LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, COMA, DOT, QUOTE,  = 'ASSI
                                                 'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
                                                 'LEFT_BRACKET', 'RIGHT_BRACKET', 'LEFT_BRACE', 'RIGHT_BRACE', 'COMA', 'DOT', 'QUOTE'
 IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC'
-EOF = 'EOF'
+EOL, EOF = 'EOL', 'EOF'
 
 
 class AST(object):
@@ -104,7 +104,12 @@ class Parser:
             MUL: 7,
             DIV: 7,
             MOD: 7,
-            EXP: 8
+            EXP: 8,
+            LEFT_PARENTHESIS: 9,
+            RIGHT_PARENTHESIS: 9,
+            LEFT_BRACKET: 9,
+            RIGHT_BRACKET: 9,
+            DOT: 9,
         }
 
     def get_precedence(self):
@@ -313,7 +318,7 @@ class Lexer:
             return Token(EOF)
 
         ch = self.peek_char()
-        while ch == ' ':
+        while ch == ' ' or ch == '\t':
             ch = self.pop_next_char()
 
         if ch.isdigit():
@@ -392,8 +397,17 @@ class Lexer:
                 self.pos += 1
                 return Token(MOD_ASN)
             return Token(MOD)
+        elif ch == '\n':
+            return Token(EOL)
 
 
+with open('pvm.txt', encoding="utf-8") as file:
+    lexer = Lexer(file.read())
+    parser = Parser(lexer)
+    print(parser.parse())
+file.close()
+
+"""
 class Stack:
     def __init__(self, items=None):
         if items is None:
@@ -418,13 +432,7 @@ class Stack:
 
     def __str__(self):
         return str(self.items)
-
-
-parser = Parser(Lexer(input()))
-print(parser.parse())
-
-"""
-
+        
 lex = Lexer(input())
 token = lex.next_token()
 while token.type != EOF:
