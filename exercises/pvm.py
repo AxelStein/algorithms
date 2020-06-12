@@ -175,6 +175,9 @@ class Parser:
             if type(right) is BinOp:
                 r_pr = self.bin_op_pr[right.token.type]
                 if c_pr > r_pr:
+                    # if current token precedence is greater then
+                    # precedence of the right one
+                    # then swap BinOps
                     right.left = BinOp(t, left, right.left)
                     return right
             return BinOp(t, left, right)
