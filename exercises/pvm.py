@@ -5,7 +5,7 @@ ASSIGNMENT, EQUALS, NOT_EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS
 LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, COMA, DOT, QUOTE,  = 'ASSIGNMENT', 'EQUALS', 'NOT_EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
                                                 'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
                                                 'LEFT_BRACKET', 'RIGHT_BRACKET', 'LEFT_BRACE', 'RIGHT_BRACE', 'COMA', 'DOT', 'QUOTE'
-IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC'
+IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC, BREAK, CONTINUE = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC', 'BREAK', 'CONTINUE'
 EOL, EOF = 'EOL', 'EOF'
 
 
@@ -336,6 +336,10 @@ class Lexer:
             return Token(IN)
         elif s == 'func':
             return Token(FUNC)
+        elif s == 'break':
+            return Token(BREAK)
+        elif s == 'continue':
+            return Token(CONTINUE)
         return Token(NAME, ''.join(buf))
 
     def next_token(self):
