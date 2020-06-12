@@ -1,1 +1,13 @@
-if ((a < 5) and (b > 3)) { a = 3 }
+a = 4 * 3 + 2
+b = 5
+
+if (a < 5) and min(a, b) {
+    print(a)
+    c = 7 - 1
+} else {
+    max(4,5)
+    c = 7*3/2
+}
+
+a = 4
+call(a, b-1)

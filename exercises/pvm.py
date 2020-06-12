@@ -49,10 +49,10 @@ class String(AST):
 
 
 class IfBranch(AST):
-    def __init__(self, condition=None, is_true=None, is_false=None):
+    def __init__(self, condition=None):
         self.condition = condition
-        self.is_true = is_true
-        self.is_false = is_false
+        self.is_true = []
+        self.is_false = []
 
     def __str__(self):
         return '[IfBranch cond={}, is_true={}, is_false={}]'.format(self.condition, self.is_true, self.is_false)
@@ -85,6 +85,7 @@ class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
         self.token = lexer.next_token()
+        self.expr_list = []
         self.bin_op_pr = {
             ASSIGNMENT: 1,
             ADD_ASN: 1,
@@ -203,32 +204,35 @@ class Parser:
             raise ValueError()
         return r
 
-    def parse_if(self):
-        self.next_token()
-        self.require_token(LEFT_PARENTHESIS)
+    def parse_expr_list(self, to):
+        e = self.parse_expr()
+        while e:
+            to.append(e)
+            e = self.parse_expr()
 
+    def parse_if(self):
         self.next_token()
 
         if_branch = IfBranch()
         if_branch.condition = self.parse_expr()
 
-        if self.require_token(RIGHT_PARENTHESIS):
+        if self.require_token(LEFT_BRACE):
             self.next_token()
-            if self.require_token(LEFT_BRACE):
+            self.parse_expr_list(if_branch.is_true)
+        if self.require_token(RIGHT_BRACE):
+            self.next_token()
+            if self.check_token(ELSE):
                 self.next_token()
-                if_branch.is_true = self.parse_expr()
-            if self.require_token(RIGHT_BRACE):
-                self.next_token()
-                if self.check_token(ELSE):
+                if self.require_token(LEFT_BRACE):
                     self.next_token()
-                    if self.require_token(LEFT_BRACE):
-                        self.next_token()
-                        if_branch.is_false = self.parse_expr()
-                        self.require_token(RIGHT_BRACE)
+                    self.parse_expr_list(if_branch.is_false)
+                    self.require_token(RIGHT_BRACE)
+        self.next_token()
         return if_branch
 
     def parse(self):
-        return self.parse_expr()
+        self.parse_expr_list(self.expr_list)
+        return self.expr_list
 
 
 class Token:
@@ -318,7 +322,7 @@ class Lexer:
             return Token(EOF)
 
         ch = self.peek_char()
-        while ch == ' ' or ch == '\t':
+        while ch == ' ' or ch == '\t' or ch == '\n':
             ch = self.pop_next_char()
 
         if ch.isdigit():
@@ -397,14 +401,18 @@ class Lexer:
                 self.pos += 1
                 return Token(MOD_ASN)
             return Token(MOD)
+        """
         elif ch == '\n':
             return Token(EOL)
+        """
 
 
 with open('pvm.txt', encoding="utf-8") as file:
     lexer = Lexer(file.read())
     parser = Parser(lexer)
-    print(parser.parse())
+    res = parser.parse()
+    for e in res:
+        print(e)
 file.close()
 
 """
