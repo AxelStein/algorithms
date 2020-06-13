@@ -370,11 +370,14 @@ class Parser:
         self.next_token()
 
         while_loop = WhileLoop(self.parse_expr())
-        if self.require_token(LEFT_BRACE):
-            self.next_token()
-            while_loop.body = self.parse_expr_list()
-            self.require_token(RIGHT_BRACE)
+        self.require_token(LEFT_BRACE)
         self.next_token()
+
+        while_loop.body = self.parse_expr_list()
+
+        self.require_token(RIGHT_BRACE)
+        self.next_token()
+
         return while_loop
 
     def parse_if(self):
