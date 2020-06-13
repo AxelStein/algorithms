@@ -26,9 +26,21 @@ class Num:
         return str(self)
 
 
+class String:
+    def __init__(self, val):
+        self.val = val
+
+    def __str__(self):
+        return str(self.val)
+
+    def __repr__(self):
+        return str(self)
+
+
 class Parser:
     def __init__(self, lexer):
         self.bp_map = {
+            const.EOF: 0,
             const.ADD: 1,
             const.SUB: 1,
             const.MUL: 2,
@@ -61,6 +73,11 @@ class Parser:
         if token.type in (const.INT, const.FLOAT):
             sign = -1 if negative else 1
             return Num(token.val * sign)
+        if token.type == const.QUOTE:
+            self._next_token()
+            s = String(self._expr(0))
+            self._next_token()
+            return s
 
     # return left-denotation operator with left context
     def _led(self, left, token):
@@ -77,6 +94,6 @@ class Parser:
         return self._expr(0)
 
 
-p = Parser(lp.Lexer('2 - 4 * 2 + 3 - 2'))
+p = Parser(lp.Lexer('-2 - 4 * -2 + 3 - 2'))
 r = p.parse()
 print(r)
