@@ -386,19 +386,24 @@ class Parser:
         if_branch = IfBranch()
         if_branch.condition = self.parse_expr()
 
-        if self.require_token(LEFT_BRACE):
-            self.next_token()
-            if_branch.is_true = self.parse_expr_list()
-        if self.require_token(RIGHT_BRACE):
-            self.next_token()
-            if self.check_token(ELSE):
-                self.next_token()
-                if self.require_token(LEFT_BRACE):
-                    self.next_token()
-                    if_branch.is_false = self.parse_expr_list()
+        self.require_token(LEFT_BRACE)
+        self.next_token()
 
-                    self.require_token(RIGHT_BRACE)
-                    self.next_token()
+        if_branch.is_true = self.parse_expr_list()
+
+        self.require_token(RIGHT_BRACE)
+        self.next_token()
+
+        if self.check_token(ELSE):
+            self.next_token()
+
+            self.require_token(LEFT_BRACE)
+            self.next_token()
+
+            if_branch.is_false = self.parse_expr_list()
+
+            self.require_token(RIGHT_BRACE)
+            self.next_token()
         return if_branch
 
     def parse(self):
