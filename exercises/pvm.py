@@ -63,11 +63,12 @@ class IfBranch(AST):
 
 
 class Var(AST):
-    def __init__(self, name):
+    def __init__(self, name, negative=False):
         self.name = name
+        self.negative = negative
 
     def __str__(self):
-        return '[Var name={}]'.format(self.name)
+        return '[Var name={}, neg={}]'.format(self.name, self.negative)
 
     def __repr__(self):
         return str(self)
@@ -193,12 +194,13 @@ class Parser:
         self.token = self.lexer.next_token()
         return self.token
 
-    def parse_num(self):
+    def parse_num(self, negative=False):
         t = self.token
         self.next_token()
-        return Num(t.type, t.val)
+        s = -1 if negative else 1
+        return Num(t.type, t.val * s)
 
-    def parse_name(self):
+    def parse_name(self, negative=False):
         t = self.token
         n = self.next_token()
         if n.type == LEFT_PARENTHESIS:
@@ -211,7 +213,7 @@ class Parser:
             self.next_token()
 
             return FunctionCall(t.val, args)
-        return Var(t.val)
+        return Var(t.val, negative)
 
     def parse_paren(self):
         self.next_token()
@@ -227,6 +229,12 @@ class Parser:
 
     def parse_primary(self):
         t = self.token
+        if t.type == SUB:
+            t = self.next_token()
+            if t.type == INTEGER or t.type == FLOAT:
+                return self.parse_num(True)
+            if t.type == NAME:
+                return self.parse_name(True)
         if t.type == INTEGER or t.type == FLOAT:
             return self.parse_num()
         elif t.type == QUOTE:
