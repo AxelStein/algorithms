@@ -39,3 +39,12 @@ if a < 5 {
     }
     print(t)
 }
+
+func min(a, b) {
+    if a < b {
+        return a
+    }
+    return b
+}
+
+a = 5

@@ -85,6 +85,19 @@ class FunctionCall(AST):
         return str(self)
 
 
+class FuncDeclaration(AST):
+    def __init__(self, name=None, args=None, body=None):
+        self.name = name
+        self.args = args
+        self.body = body
+
+    def __str__(self):
+        return '[FuncDeclaration name={}, args={}, body={}]'.format(self.name, self.args, self.body)
+
+    def __repr__(self):
+        return str(self)
+
+
 class Return(AST):
     def __init__(self, expr):
         self.expr = expr
@@ -236,6 +249,8 @@ class Parser:
         elif t.type == CONTINUE:
             self.next_token()
             return Continue()
+        elif t.type == FUNC:
+            return self.parse_func()
 
     def parse_bin_op(self, left):
         t = self.token
@@ -290,6 +305,21 @@ class Parser:
     def parse_return(self):
         self.next_token()
         return Return(self.parse_expr())
+
+    def parse_func(self):
+        self.next_token()
+
+        func_call = self.parse_primary()
+        if not func_call:
+            raise ValueError('Func declaration is required')
+
+        self.require_token(LEFT_BRACE)
+        self.next_token()
+
+        body = self.parse_expr_list()
+        self.next_token()
+
+        return FuncDeclaration(func_call.name, func_call.args, body)
 
     def parse_for(self):
         self.next_token()
