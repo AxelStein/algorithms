@@ -14,9 +14,21 @@ a = 4
 call(a, b-1)
 return a
 
-while i < 5 and i >= 0 {
+while (i < 5 and i >= 0) or i != 1 {
     i += 1
     print(i)
+}
+
+while {
+    print(i)
+}
+
+for i in range(start, stop, step) {
+    print(i)
+}
+
+for j in range(10) {
+    print(j)
 }
 
 return i

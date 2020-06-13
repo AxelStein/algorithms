@@ -5,7 +5,7 @@ ASSIGNMENT, EQUALS, NOT_EQUALS, LESS, GREATER, LESS_OR_EQUALS, GREATER_OR_EQUALS
 LEFT_BRACKET, RIGHT_BRACKET, LEFT_BRACE, RIGHT_BRACE, COMA, DOT, QUOTE,  = 'ASSIGNMENT', 'EQUALS', 'NOT_EQUALS', 'LESS', 'GREATER', 'LESS_OR_EQUALS', \
                                                 'GREATER_OR_EQUALS', 'COLON', 'LEFT_PARENTHESIS', 'RIGHT_PARENTHESIS', \
                                                 'LEFT_BRACKET', 'RIGHT_BRACKET', 'LEFT_BRACE', 'RIGHT_BRACE', 'COMA', 'DOT', 'QUOTE'
-IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC, BREAK, CONTINUE = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC', 'BREAK', 'CONTINUE'
+IF, ELSE, ELIF, FOR, WHILE, RETURN, AND, OR, IS, IN, FUNC, BREAK, CONTINUE, RANGE = 'IF', 'ELSE', 'ELIF', 'FOR', 'WHILE', 'RETURN', 'AND', 'OR', 'IS', 'IN', 'FUNC', 'BREAK', 'CONTINUE', 'RANGE'
 EOL, EOF = 'EOL', 'EOF'
 
 
@@ -105,6 +105,21 @@ class WhileLoop(AST):
         return str(self)
 
 
+class ForLoop(AST):
+    def __init__(self, var=None):
+        self.var = var
+        self.start = 0
+        self.stop = None
+        self.step = 1
+        self.body = None
+
+    def __str__(self):
+        return '[ForLoop var={}, start={}, stop={}, step={}, body={}]'.format(self.var, self.start, self.stop, self.step, self.body)
+
+    def __repr__(self):
+        return str(self)
+
+
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
@@ -191,6 +206,8 @@ class Parser:
             return self.parse_return()
         elif t.type == WHILE:
             return self.parse_while()
+        elif t.type == FOR:
+            return self.parse_for()
 
     def parse_bin_op(self, left):
         t = self.token
@@ -231,7 +248,7 @@ class Parser:
     def require_token(self, t):
         r = self.check_token(t)
         if not r:
-            raise ValueError()
+            raise ValueError(t + ' is required')
         return r
 
     def parse_expr_list(self):
@@ -245,6 +262,51 @@ class Parser:
     def parse_return(self):
         self.next_token()
         return Return(self.parse_expr())
+
+    def parse_for(self):
+        self.next_token()
+
+        var = self.parse_primary()
+        if not var:
+            raise ValueError('For loop requires var')
+
+        for_loop = ForLoop(var)
+
+        self.require_token(IN)
+        self.next_token()
+
+        self.require_token(RANGE)
+        self.next_token()
+
+        self.require_token(LEFT_PARENTHESIS)
+        self.next_token()
+
+        args = []
+        self.parse_arg_expr(args)
+
+        arg_count = len(args)
+        if arg_count == 1:
+            for_loop.stop = args[0]
+        elif arg_count > 1:
+            for_loop.start = args[0]
+            for_loop.stop = args[1]
+            if arg_count == 3:
+                for_loop.step = args[2]
+        else:
+            raise ValueError('Range requires at least 1 argument')
+
+        self.require_token(RIGHT_PARENTHESIS)
+        self.next_token()
+
+        self.require_token(LEFT_BRACE)
+        self.next_token()
+
+        for_loop.body = self.parse_expr_list()
+
+        self.require_token(RIGHT_BRACE)
+        self.next_token()
+
+        return for_loop
 
     def parse_while(self):
         self.next_token()
@@ -365,6 +427,8 @@ class Lexer:
             return Token(BREAK)
         elif s == 'continue':
             return Token(CONTINUE)
+        elif s == 'range':
+            return Token(RANGE)
         return Token(NAME, ''.join(buf))
 
     def next_token(self):
