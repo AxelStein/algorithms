@@ -1,0 +1,7 @@
+EOF = 'EOF'
+ADD = 'ADD'
+SUB = 'SUB'
+MUL = 'MUL'
+DIV = 'DIV'
+INT = 'INT'
+FLOAT = 'FLOAT'
