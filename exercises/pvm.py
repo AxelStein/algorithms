@@ -428,8 +428,11 @@ class Lexer:
         self.txt = txt.strip()
         self.pos = 0
 
-    def pop_next_char(self):
+    def forward(self):
         self.pos += 1
+
+    def pop_next_char(self):
+        self.forward()
         if self.pos < len(self.txt):
             return self.txt[self.pos]
 
@@ -511,29 +514,29 @@ class Lexer:
         elif ch.isalpha():
             return self.get_name(ch)
 
-        self.pos += 1
+        self.forward()
         if ch == '+':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(ADD_ASN)
             return Token(ADD)
         elif ch == '-':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(SUB_ASN)
             return Token(SUB)
         elif ch == '*':
             c = self.peek_char()
             if c == '*':
-                self.pos += 1
+                self.forward()
                 return Token(EXP)
             elif c == '=':
-                self.pos += 1
+                self.forward()
                 return Token(MUL_ASN)
             return Token(MUL)
         elif ch == '/':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(DIV_ASN)
             return Token(DIV)
         elif ch == ':':
@@ -560,26 +563,26 @@ class Lexer:
             return Token(QUOTE)
         elif ch == '<':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(LESS_OR_EQUALS)
             return Token(LESS)
         elif ch == '>':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(GREATER_OR_EQUALS)
             return Token(GREATER)
         elif ch == '=':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(EQUALS)
             return Token(ASSIGNMENT)
         elif ch == '!':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(NOT_EQUALS)
         elif ch == '%':
             if self.peek_char() == '=':
-                self.pos += 1
+                self.forward()
                 return Token(MOD_ASN)
             return Token(MOD)
         """
