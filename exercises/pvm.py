@@ -73,13 +73,13 @@ class Var(AST):
         return str(self)
 
 
-class Call(AST):
-    def __init__(self, name, params):
+class FunctionCall(AST):
+    def __init__(self, name, args):
         self.name = name
-        self.params = params
+        self.args = args
 
     def __str__(self):
-        return '[Call name={}, params={}]'.format(self.name, self.params)
+        return '[FunctionCall name={}, args={}]'.format(self.name, self.args)
 
     def __repr__(self):
         return str(self)
@@ -190,11 +190,14 @@ class Parser:
         n = self.next_token()
         if n.type == LEFT_PARENTHESIS:
             self.next_token()
-            params = []
-            self.parse_arg_expr(params)
-            if self.token.type == RIGHT_PARENTHESIS:
-                self.next_token()
-                return Call(t.val, params)
+
+            args = []
+            self.parse_arg_expr(args)
+
+            self.require_token(RIGHT_PARENTHESIS)
+            self.next_token()
+
+            return FunctionCall(t.val, args)
         return Var(t.val)
 
     def parse_paren(self):
