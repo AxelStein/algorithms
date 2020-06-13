@@ -123,6 +123,22 @@ class ForLoop(AST):
         return str(self)
 
 
+class Break(AST):
+    def __str__(self):
+        return '[Break]'
+
+    def __repr__(self):
+        return str(self)
+
+
+class Continue(AST):
+    def __str__(self):
+        return '[Continue]'
+
+    def __repr__(self):
+        return str(self)
+
+
 class Parser:
     def __init__(self, lexer):
         self.lexer = lexer
@@ -211,6 +227,12 @@ class Parser:
             return self.parse_while()
         elif t.type == FOR:
             return self.parse_for()
+        elif t.type == BREAK:
+            self.next_token()
+            return Break()
+        elif t.type == CONTINUE:
+            self.next_token()
+            return Continue()
 
     def parse_bin_op(self, left):
         t = self.token
