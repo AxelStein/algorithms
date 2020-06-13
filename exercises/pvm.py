@@ -58,6 +58,9 @@ class IfBranch(AST):
     def __str__(self):
         return '[IfBranch cond={}, is_true={}, is_false={}]'.format(self.condition, self.is_true, self.is_false)
 
+    def __repr__(self):
+        return str(self)
+
 
 class Var(AST):
     def __init__(self, name):
@@ -335,8 +338,9 @@ class Parser:
                 if self.require_token(LEFT_BRACE):
                     self.next_token()
                     if_branch.is_false = self.parse_expr_list()
+
                     self.require_token(RIGHT_BRACE)
-        self.next_token()
+                    self.next_token()
         return if_branch
 
     def parse(self):
