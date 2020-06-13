@@ -53,10 +53,14 @@ class Parser:
         return 0
 
     # return null-denotation operator with no left context
-    @staticmethod
-    def _nud(token):
+    def _nud(self, token):
+        negative = False
+        if token.type == const.SUB:
+            negative = True
+            token = self._next_token()
         if token.type in (const.INT, const.FLOAT):
-            return Num(token.val)
+            sign = -1 if negative else 1
+            return Num(token.val * sign)
 
     # return left-denotation operator with left context
     def _led(self, left, token):
