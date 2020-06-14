@@ -171,8 +171,11 @@ class Lexer:
             return Token(const.EOF)
 
         ch = self._peek_char()
-        while ch == ' ' or ch == '\t' or ch == '\n':
+        while ch == ' ' or ch == '\t':
             ch = self._pop_next_char()
+        if ch == '\n':
+            self._forward()
+            return Token(const.EOL)
 
         if ch.isdigit():
             return self._get_digit(ch)
@@ -189,6 +192,17 @@ class Lexer:
 
 
 '''
+with open('program.txt', encoding="utf-8") as file:
+    s = file.read()
+    print(s)
+
+    l = Lexer(s)
+    t = l.next_token()
+    while t.type != const.EOF:
+        print(t)
+        t = l.next_token()
+file.close()
+
 l = Lexer('-2 - 4 * -2 + 3 - 2**2')
 t = l.next_token()
 while t.type != const.EOF:

@@ -36,15 +36,30 @@ class String:
         return str(self)
 
 
+class Var:
+    def __init__(self, name, negative=False):
+        self.name = name
+        self.negative = negative
+
+    def __str__(self):
+        s = '-' if self.negative else ''
+        return s + self.name
+
+    def __repr__(self):
+        return str(self)
+
+
 class Parser:
     def __init__(self, lexer):
         self.bp_map = {
             const.EOF: 0,
-            const.ADD: 1,
-            const.SUB: 1,
-            const.MUL: 2,
-            const.DIV: 2,
-            const.EXP: 3,
+            const.EOL: 0,
+            const.ASN: 1,
+            const.ADD: 2,
+            const.SUB: 2,
+            const.MUL: 3,
+            const.DIV: 3,
+            const.EXP: 4,
         }
         self.lexer = lexer
         self.token = None
@@ -52,6 +67,7 @@ class Parser:
     # return next token from lexer
     def _next_token(self):
         self.token = self.lexer.next_token()
+        # print('next_token', self.token)
         return self.token
 
     def _peek_next_token(self):
@@ -72,6 +88,8 @@ class Parser:
         if token.type in (const.INT, const.FLOAT):
             sign = -1 if negative else 1
             return Num(token.val * sign)
+        if token.type == const.NAME:
+            return Var(token.val, negative)
         if token.type == const.QUOTE:
             self._next_token()
             s = String(self._expr(0))
@@ -92,5 +110,14 @@ class Parser:
             left = self._led(left, self._next_token())
         return left
 
+    def _expr_list(self):
+        expr_list = []
+        expr = self._expr(0)
+        while expr:
+            expr_list.append(expr)
+            self._next_token()
+            expr = self._expr(0)
+        return expr_list
+
     def parse(self):
-        return self._expr(0)
+        return self._expr_list()

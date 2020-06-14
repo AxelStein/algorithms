@@ -1,4 +1,5 @@
 EOF = 'EOF'
+EOL = 'EOL'
 
 INT = 'INT'
 FLOAT = 'FLOAT'
