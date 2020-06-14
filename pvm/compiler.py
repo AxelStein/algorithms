@@ -16,7 +16,26 @@ class Compiler:
             return v
         return node
 
-    def d(self, node):
+    def calc(self, op, left, right):
+        a = self.get_var_value(left)
+        b = self.get_var_value(right)
+
+        if op == const.ADD:
+            return a + b
+        elif op == const.SUB:
+            return a - b
+        elif op == const.MUL:
+            return a * b
+        elif op == const.DIV:
+            return a / b
+        elif op == const.DIV_INT:
+            return a // b
+        elif op == const.EXP:
+            return a ** b
+        elif op == const.MOD:
+            return a % b
+
+    def calc_expr(self, node):
         if type(node) is Num:
             return node.val
         if type(node) is Var:
@@ -24,24 +43,16 @@ class Compiler:
         if type(node) is String:
             return node
         if type(node) is BinOp:
-            left = self.d(node.left)
-            right = self.d(node.right)
-            if node.op == const.ADD:
-                return self.get_var_value(left) + self.get_var_value(right)
-            elif node.op == const.SUB:
-                return self.get_var_value(left) - self.get_var_value(right)
-            elif node.op == const.MUL:
-                return self.get_var_value(left) * self.get_var_value(right)
-            elif node.op == const.DIV:
-                return self.get_var_value(left) / self.get_var_value(right)
-            elif node.op == const.EXP:
-                return self.get_var_value(left) ** self.get_var_value(right)
-            elif node.op == const.ASN:
+            left = self.calc_expr(node.left)
+            right = self.calc_expr(node.right)
+            if node.op == const.ASN:
                 self.vars[left.name] = self.get_var_value(right)
+            else:
+                return self.calc(node.op, left, right)
 
     def compile(self):
         for node in self.node_list:
-            self.d(node)
+            self.calc_expr(node)
 
 
 with open('program.txt', encoding="utf-8") as file:

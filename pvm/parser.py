@@ -59,6 +59,7 @@ class Parser:
             const.SUB: 2,
             const.MUL: 3,
             const.DIV: 3,
+            const.MOD: 3,
             const.EXP: 4,
         }
         self.lexer = lexer

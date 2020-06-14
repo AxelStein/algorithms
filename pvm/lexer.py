@@ -7,10 +7,10 @@ class Token:
         self.val = v
 
     def __str__(self):
-        s = '[Token type={}'.format(self.type)
+        s = 'Token {}'.format(self.type)
         if self.val:
-            s += ', val={}'.format(self.val)
-        s += ']'
+            s += ' {}'.format(self.val)
+        s += ' '
         return s
 
 
@@ -126,9 +126,13 @@ class Lexer:
                 return Token(const.MUL_ASN)
             return Token(const.MUL)
         elif ch == '/':
-            if self._peek_char() == '=':
+            c = self._peek_char()
+            if c == '=':
                 self._forward()
                 return Token(const.DIV_ASN)
+            elif c == '/':
+                self._forward()
+                return Token(const.DIV_INT)
             return Token(const.DIV)
         elif ch == '(':
             return Token(const.L_PAREN)
