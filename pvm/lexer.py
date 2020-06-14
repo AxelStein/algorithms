@@ -7,11 +7,11 @@ class Token:
         self.val = v
 
     def __str__(self):
-        s = 'Token {}'.format(self.type)
-        if self.val:
-            s += ' {}'.format(self.val)
+        s = 'Token {}'
+        if self.val is not None:
+            s += ' {}'
         s += ' '
-        return s
+        return s.format(self.type, self.val)
 
 
 class Lexer:
@@ -184,7 +184,7 @@ class Lexer:
             return Token(const.EOF)
 
         ch = self._peek_char()
-        while ch == ' ' or ch == '\t':
+        while ch in (' ', '\t'):
             ch = self._pop_next_char()
         if ch == '\n':
             self._forward()
@@ -203,6 +203,12 @@ class Lexer:
         nt = self.next_token()
         self.pos = p
         return nt
+
+    def skip_new_lines(self):
+        if self.pos < len(self.txt):
+            ch = self._peek_char()
+            while ch in ('\n', ' ', '\t'):
+                ch = self._pop_next_char()
 
 
 '''
