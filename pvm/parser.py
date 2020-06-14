@@ -91,6 +91,10 @@ class Parser:
             return String(token.val)
         if token.type == const.NAME:
             return Var(token.val, negative)
+        if token.type == const.L_PAREN:
+            r = self._expr(0)
+            self._next_token()
+            return r
 
     # return left-denotation operator with left context
     def _led(self, left, token):
