@@ -3,6 +3,7 @@ EOL = 'EOL'
 
 INT = 'INT'
 FLOAT = 'FLOAT'
+STRING = 'STRING'
 
 ADD = 'ADD'
 SUB = 'SUB'

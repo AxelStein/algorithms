@@ -67,7 +67,6 @@ class Parser:
     # return next token from lexer
     def _next_token(self):
         self.token = self.lexer.next_token()
-        # print('next_token', self.token)
         return self.token
 
     def _peek_next_token(self):
@@ -88,13 +87,10 @@ class Parser:
         if token.type in (const.INT, const.FLOAT):
             sign = -1 if negative else 1
             return Num(token.val * sign)
+        if token.type == const.STRING:
+            return String(token.val)
         if token.type == const.NAME:
             return Var(token.val, negative)
-        if token.type == const.QUOTE:
-            self._next_token()
-            s = String(self._expr(0))
-            self._next_token()
-            return s
 
     # return left-denotation operator with left context
     def _led(self, left, token):

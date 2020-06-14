@@ -53,6 +53,15 @@ class Lexer:
             return Token(const.FLOAT, float(s))
         return Token(const.INT, int(s))
 
+    def _get_string(self):
+        buf = []
+        ch = self._pop_next_char()
+        while ch not in ('\'', '"'):
+            buf.append(ch)
+            ch = self._pop_next_char()
+        self._forward()
+        return Token(const.STRING, ''.join(buf))
+
     def _get_name(self, ch):
         buf = []
         while ch.isalpha() or ch.isdigit():
@@ -176,8 +185,9 @@ class Lexer:
         if ch == '\n':
             self._forward()
             return Token(const.EOL)
-
-        if ch.isdigit():
+        elif ch in ('\'', '"'):
+            return self._get_string()
+        elif ch.isdigit():
             return self._get_digit(ch)
         elif ch.isalpha():
             return self._get_name(ch)

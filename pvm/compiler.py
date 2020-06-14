@@ -21,6 +21,8 @@ class Compiler:
             return node.val
         if type(node) is Var:
             return node
+        if type(node) is String:
+            return node
         if type(node) is BinOp:
             left = self.d(node.left)
             right = self.d(node.right)
