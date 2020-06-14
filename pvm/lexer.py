@@ -31,6 +31,11 @@ class Lexer:
         if self.pos < len(self.txt):
             return self.txt[self.pos]
 
+    def _peek_next_char(self):
+        p = self.pos + 1
+        if p < len(self.txt):
+            return self.txt[p]
+
     def _get_digit(self, ch):
         is_float = False
         buf = []
@@ -92,21 +97,8 @@ class Lexer:
             return Token(const.RANGE)
         return Token(const.NAME, ''.join(buf))
 
-    def next_token(self, forward=True):
-        if self.pos >= len(self.txt):
-            return Token(const.EOF)
-
-        ch = self._peek_char()
-        while ch == ' ' or ch == '\t' or ch == '\n':
-            ch = self._pop_next_char()
-
-        if ch.isdigit():
-            return self._get_digit(ch)
-        elif ch.isalpha():
-            return self._get_name(ch)
-
-        if forward:
-            self._forward()
+    def _get_op(self, ch):
+        self._forward()
         if ch == '+':
             if self._peek_char() == '=':
                 self._forward()
@@ -119,10 +111,12 @@ class Lexer:
             return Token(const.SUB)
         elif ch == '*':
             c = self._peek_char()
+            '''
             if c == '*':
                 self._forward()
                 return Token(const.EXP)
-            elif c == '=':
+            '''
+            if c == '=':
                 self._forward()
                 return Token(const.MUL_ASN)
             return Token(const.MUL)
@@ -176,5 +170,23 @@ class Lexer:
                 return Token(const.MOD_ASN)
             return Token(const.MOD)
 
+    def next_token(self):
+        if self.pos >= len(self.txt):
+            return Token(const.EOF)
+
+        ch = self._peek_char()
+        while ch == ' ' or ch == '\t' or ch == '\n':
+            ch = self._pop_next_char()
+
+        if ch.isdigit():
+            return self._get_digit(ch)
+        elif ch.isalpha():
+            return self._get_name(ch)
+        else:
+            return self._get_op(ch)
+
     def peek_next_token(self):
-        return self.next_token(False)
+        p = self.pos
+        nt = self.next_token()
+        self.pos = p
+        return nt

@@ -1,4 +1,3 @@
-from pvm import lexer as lp
 from pvm import const
 
 
@@ -48,7 +47,6 @@ class Parser:
         }
         self.lexer = lexer
         self.token = None
-        # self.token = lexer.next_token()
 
     # return next token from lexer
     def _next_token(self):
@@ -92,8 +90,3 @@ class Parser:
 
     def parse(self):
         return self._expr(0)
-
-
-p = Parser(lp.Lexer('-2 - 4 * -2 + 3 - 2'))
-r = p.parse()
-print(r)
