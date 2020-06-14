@@ -83,8 +83,6 @@ class Lexer:
             return Token(const.AND)
         elif s == 'or':
             return Token(const.OR)
-        elif s == 'is':
-            return Token(const.IS)
         elif s == 'in':
             return Token(const.IN)
         elif s == 'func':
@@ -111,11 +109,9 @@ class Lexer:
             return Token(const.SUB)
         elif ch == '*':
             c = self._peek_char()
-            '''
             if c == '*':
                 self._forward()
                 return Token(const.EXP)
-            '''
             if c == '=':
                 self._forward()
                 return Token(const.MUL_ASN)
@@ -190,3 +186,12 @@ class Lexer:
         nt = self.next_token()
         self.pos = p
         return nt
+
+
+'''
+l = Lexer('-2 - 4 * -2 + 3 - 2**2')
+t = l.next_token()
+while t.type != const.EOF:
+    print(t)
+    t = l.next_token()
+'''

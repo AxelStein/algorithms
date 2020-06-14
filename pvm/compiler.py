@@ -22,11 +22,13 @@ class Compiler:
                 return left * right
             elif node.op == const.DIV:
                 return left / right
+            elif node.op == const.EXP:
+                return left ** right
 
     def compile(self):
         return self.d(self.ast)
 
 
-p = Parser(Lexer('-2 - 4 * -2 + 3 - 2'))
+p = Parser(Lexer('-2 - 4.5 * -2 + 3 - 2**3'))
 c = Compiler(p.parse())
 print(c.compile())

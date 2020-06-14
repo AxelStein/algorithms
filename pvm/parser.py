@@ -44,6 +44,7 @@ class Parser:
             const.SUB: 1,
             const.MUL: 2,
             const.DIV: 2,
+            const.EXP: 3,
         }
         self.lexer = lexer
         self.token = None
@@ -79,7 +80,10 @@ class Parser:
 
     # return left-denotation operator with left context
     def _led(self, left, token):
-        return BinOp(token.type, left, self._expr(self._bp(token)))
+        bp = self._bp(token)
+        if token.type == const.EXP:
+            bp -= 1
+        return BinOp(token.type, left, self._expr(bp))
 
     # rbp is binding power of the right operator
     def _expr(self, rbp):
