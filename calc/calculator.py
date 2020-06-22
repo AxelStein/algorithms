@@ -1,3 +1,5 @@
+import math
+
 from calc.lexer import Lexer
 from calc.parser import *
 
@@ -42,6 +44,10 @@ class Calculator:
             return node.val
         if type(node) is Var:
             return node
+        if type(node) is UnOp:
+            if node.op == const.SIN:
+                v = self.calc_expr(node.operand)
+                return math.sin(v)
         if type(node) is BinOp:
             left = self.calc_expr(node.left)
             right = self.calc_expr(node.right)

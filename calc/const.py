@@ -15,7 +15,6 @@ ASN = 'ASN'
 
 L_PAREN = 'L_PAREN'
 R_PAREN = 'R_PAREN'
-DOT = 'DOT'
-COMA = 'COMA'
 
 NAME = 'NAME'
+SIN = 'SIN'

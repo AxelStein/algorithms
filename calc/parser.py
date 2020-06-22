@@ -14,6 +14,18 @@ class BinOp:
         return str(self)
 
 
+class UnOp:
+    def __init__(self, op=None, operand=None):
+        self.op = op
+        self.operand = operand
+
+    def __str__(self):
+        return f'{self.op} ->{self.operand} '
+
+    def __repr__(self):
+        return str(self)
+
+
 class Num:
     def __init__(self, val=None):
         self.val = val
@@ -82,6 +94,10 @@ class Parser:
             r = self._expr(0)
             self._next_token()
             return r
+        if token.type == const.SIN:
+            sin = UnOp(const.SIN, self._expr(0))
+            self._next_token()
+            return sin
 
     # return left-denotation operator with left context
     def _led(self, left, token):

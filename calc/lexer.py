@@ -44,7 +44,7 @@ class Lexer:
             ch = self._pop_next_char()
             if not ch:
                 break
-            if ch == '.':
+            if ch == '.' or ch == ',':
                 is_float = True
                 buf.append('.')
                 ch = self._pop_next_char()
@@ -60,7 +60,10 @@ class Lexer:
             ch = self._pop_next_char()
             if not ch:
                 break
-        return Token(const.NAME, ''.join(buf))
+        s = ''.join(buf)
+        if s == 'sin':
+            return Token(const.SIN)
+        return Token(const.NAME, s)
 
     def _get_op(self, ch):
         self._forward()
@@ -82,10 +85,6 @@ class Lexer:
             return Token(const.L_PAREN)
         elif ch == ')':
             return Token(const.R_PAREN)
-        elif ch == ',':
-            return Token(const.COMA)
-        elif ch == '.':
-            return Token(const.DOT)
         elif ch == '%':
             return Token(const.MOD)
         elif ch == '=':
