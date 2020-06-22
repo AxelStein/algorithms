@@ -1,0 +1,21 @@
+EOF = 'EOF'
+EOL = 'EOL'
+
+INT = 'INT'
+FLOAT = 'FLOAT'
+
+ADD = 'ADD'
+SUB = 'SUB'
+MUL = 'MUL'
+DIV = 'DIV'
+DIV_INT = 'DIV_INT'
+MOD = 'MOD'
+EXP = 'EXP'
+ASN = 'ASN'
+
+L_PAREN = 'L_PAREN'
+R_PAREN = 'R_PAREN'
+DOT = 'DOT'
+COMA = 'COMA'
+
+NAME = 'NAME'
